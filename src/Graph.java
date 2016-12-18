@@ -8,7 +8,7 @@ import static java.text.ChoiceFormat.nextDouble;
  * Created by hp on 10.12.2016.
  */
 public class Graph extends JFrame {
-    final int COUNT_POINTS = 50;
+    final int COUNT_POINTS = 10;
     final int LENGTH_X = 1500;
     final int LENGTH_Y = 600;
     final int DEGREE = 4;
@@ -45,16 +45,18 @@ int height = getHeight(),
      }
 
        //отрисовываем выборку
-       generateSamle();
+
+
      Point point = new Point();
         for (int i = 0; i < COUNT_POINTS; i++) {
+            //point = generateNormalSample();
             point = generateSamle();
             int diameter = 1;
-            graphics.drawOval(point.x - diameter /2, point.y - diameter /2, 10, 10);
+            graphics.drawOval(point.x - diameter/2 , point.y - diameter/2, 10, 10);
 
         }
 
-       //generateNormalSample();
+
 
        for(int i = 0; i < points.length; i++){
            graphics.drawOval(points[i].x -1 /2, points[i].y-1/2, 5, 5);
@@ -75,7 +77,9 @@ int height = getHeight(),
    public Point graphics(double x, double t){
        Point point = new Point();
        int xx = 200 + (int)(x *200);
-       int yy = 300 - (int)(func1(x)*200);
+       int yy = 300 - (int)(t*200);
+       //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
+       // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
        point.x = xx;
        point.y = yy;
        return point;
@@ -97,29 +101,33 @@ int height = getHeight(),
    public Point generateSamle(){
       double x;
       double t;
+       double e = 0.0;
+       double s = 0.0;
        Point point = new Point();
+       Random random = new Random();
 
-           x = (2 * Math.PI * Math.random());
-           t = func1(x) + (2 * Math.random() - 1.0);
-           return graphics(x,t);
+       int rand = random.nextInt(getWidth());
+
+       x = (2 * Math.PI *rand) /getWidth();
+       e = random.nextDouble()*0.2;
+       if(e >= 0.1){
+           s = 1.;
+       }else
+           s = -1;
+       t = func1(x) + s*e ;
+       return graphics(x,t);
 
    }
 
-   public void generateNormalSample(){
+   public Point generateNormalSample(){
        Random random = new Random();
-       double x[] = new double[COUNT_POINTS];
-       double t[] = new double[COUNT_POINTS];
-
-      // for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
-          // int xx = 200 + (int)(i * 200); //для func1, func 3
-          // int yy = 300 - (int)(func1(i) * 200); //для func1, func 3
-        int j = 0;
-       for(double i = -Math.PI; i < 2 * Math.PI; i += 1){
-           //int rd = 200 + random.nextInt(i*200);
-           int tt = 300 - (int)((func1(i) + random.nextGaussian())*200);
-          // points[j] = new Point(rd,(int)tt);
-           j++;
-       }
+       double x;
+       double t;
+       Point point = new Point();
+       int rd = random.nextInt(LENGTH_X);
+       x = (2 * Math.PI *rd) / LENGTH_X;
+       t = func1(x) + random.nextGaussian()*0.2;
+       return graphics(x,t);
    }
 
 
