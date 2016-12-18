@@ -14,8 +14,6 @@ public class Graph extends JFrame {
     final int DEGREE = 4;
      Point [] points = new Point[COUNT_POINTS];
 
-    private double nextNextGaussian;
-    private boolean haveNextNextGaussian = false;
     private double []w = new double[COUNT_POINTS];
 
     public static void main(String[] args) {
@@ -26,7 +24,6 @@ public class Graph extends JFrame {
     }
 
 
-
  public void paint(Graphics graphics){
 int height = getHeight(),
         width = getWidth();
@@ -35,35 +32,32 @@ int height = getHeight(),
        graphics.drawLine(0, 300, LENGTH_X, 300);
        int [] x = new int[LENGTH_X];
        int[] y = new int[LENGTH_X];
-/*
-     for(int i = 0; i < 2 * LENGTH_X;i++){
-         x[i] = 100 + (int)(i * Math.PI/LENGTH_X * 150);
-         y[i] = 170 + (int)(-(func3(i * Math.PI/LENGTH_X) * 150)) + LENGTH_Y / 2;
 
-     }*/
-int j = 0;
+     int j = 0;
      for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
-         //int xx = 200 + (int)(i * 200); //для func1, func 3
-         //int yy = 300 - (int)(func2(i) * 200); //для func1, func 3
-         int xx = 500 + (int)(i * 200 * 0.03); // для func 2
-         int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
-
-         //x[j] = LENGTH_X / 2 + (int)(i);
-         //y[j] = LENGTH_Y / 2 - (int)(func3(i));// + LENGTH_Y / 2;
-j++;
+        int xx = 200 + (int)(i * 200); //для func1, func 3
+        int yy = 300 - (int)(func1(i) * 200); //для func1, func 3
+        //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
+       // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
+         j++;
          int diameter = 1;
          graphics.drawOval(xx - diameter / 2, yy - diameter / 2, diameter, diameter);
      }
 
-
-//       graphics.drawPolyline(x,y,LENGTH_X);
-
        //отрисовываем выборку
-       //generateSamle();
-       generateNormalSample();
+       generateSamle();
+     Point point = new Point();
+        for (int i = 0; i < COUNT_POINTS; i++) {
+            point = generateSamle();
+            int diameter = 1;
+            graphics.drawOval(point.x - diameter /2, point.y - diameter /2, 10, 10);
+
+        }
+
+       //generateNormalSample();
 
        for(int i = 0; i < points.length; i++){
-           graphics.drawOval(points[i].x, points[i].y, 5, 5);
+           graphics.drawOval(points[i].x -1 /2, points[i].y-1/2, 5, 5);
        }
        graphics.setColor(new Color(255, 0, 0));
 /////////////
@@ -76,6 +70,15 @@ j++;
      graphics.drawPolyline(x, y, getWidth());
 
        //выводим кроссвалидацию
+   }
+
+   public Point graphics(double x, double t){
+       Point point = new Point();
+       int xx = 200 + (int)(x *200);
+       int yy = 300 - (int)(func1(x)*200);
+       point.x = xx;
+       point.y = yy;
+       return point;
    }
 
 
@@ -91,26 +94,15 @@ j++;
        return Math.sin(x);
    }
 
-   public void generateSamle(){
-       Random random = new Random();
-      double x[] = new double[COUNT_POINTS];
-      double t[] = new double[COUNT_POINTS];
-       double e = 0.0;
-       double s = 0.0;
+   public Point generateSamle(){
+      double x;
+      double t;
+       Point point = new Point();
 
-       for(int i = 0 ; i < COUNT_POINTS;i++){
-           int rand = random.nextInt(getWidth());
-           x[i] = rand * 2 * Math.PI/LENGTH_X;
+           x = (2 * Math.PI * Math.random());
+           t = func1(x) + (2 * Math.random() - 1.0);
+           return graphics(x,t);
 
-           e = random.nextDouble()*0.2;
-           if(e >= 0.1)
-               s = 1.;
-           else
-               s = -1.;
-           t[i] = func3(x[i]) + s*e;
-           points[i] = new Point(rand,(int)(-t[i]*150+LENGTH_Y));
-
-       }
    }
 
    public void generateNormalSample(){
@@ -118,12 +110,15 @@ j++;
        double x[] = new double[COUNT_POINTS];
        double t[] = new double[COUNT_POINTS];
 
-       for(int i = 0; i <COUNT_POINTS; i++){
-           int rd = random.nextInt(LENGTH_X);
-           x[i] = rd*2*Math.PI/LENGTH_X;
-
-           t[i] = func3(x[i]) + random.nextGaussian()*0.2;
-           points[i] = new Point(rd,(int)(-t[i]*150+LENGTH_Y));
+      // for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
+          // int xx = 200 + (int)(i * 200); //для func1, func 3
+          // int yy = 300 - (int)(func1(i) * 200); //для func1, func 3
+        int j = 0;
+       for(double i = -Math.PI; i < 2 * Math.PI; i += 1){
+           //int rd = 200 + random.nextInt(i*200);
+           int tt = 300 - (int)((func1(i) + random.nextGaussian())*200);
+          // points[j] = new Point(rd,(int)tt);
+           j++;
        }
    }
 
