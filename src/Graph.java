@@ -13,14 +13,15 @@ public class Graph extends JFrame {
     final static int LENGTH_X = 1500;
     final static int DEGREE = 4;
 
-    static ArrayList<MyPoints> points = new ArrayList<MyPoints>();
-    static ArrayList<MyPoints> pointsForGraph = new ArrayList<MyPoints>();
-    static ArrayList<MyPoints> pointsForGraph2 = new ArrayList<MyPoints>();
-    static ArrayList<MyPoints> pointsGoodFromSample = new ArrayList<MyPoints>();
+    static ArrayList<MyPoints> points = new ArrayList<>();
+    static ArrayList<MyPoints> pointsForGraph = new ArrayList<>();
+    static ArrayList<MyPoints> pointsForGraph2 = new ArrayList<>();
+    static ArrayList<MyPoints> pointsGoodFromSample = new ArrayList<>();
 
     public static void main(String[] args) {
         Graph graph = new Graph();
         graph.setSize(new Dimension(2000, 1200));
+        graph.setBackground(Color.WHITE);
 
         for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
             double xx = 200 + i * 200; //для func1, func 3
@@ -30,30 +31,29 @@ public class Graph extends JFrame {
 
         //int xx = 500 + i * 200 * 0.03; // для func 2
             // int yy = 300 - func2(i) * 200 * 0.03; // для func 2
-
         }
 
         for (int i = 0; i < COUNT_POINTS; i++) {
-            //MyPoints point = graph.generateNormalSample();
-            MyPoints point = graph.generateSamle();
+            MyPoints point = graph.generateNormalSample();
+            //MyPoints point = graph.generateSamle();
             points.add(point);
         }
 
         double[] w;
-       w = graph.builtAndDecisionPolinom(pointsGoodFromSample);
+       w = graph.builtAndDecisionPolinom(pointsGoodFromSample, DEGREE,COUNT_POINTS);
         for (int i = 0; i < w.length; i++)
             System.out.println("w" + i + "= " + w[i]);
 
      for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
          double xx = 200 + i * 200; //для func1, func 3
-         double yy = 300 - graph.funcW(i,w) * 200; //для func1, func 3
+         double yy = 300 - graph.funcW(i,w,DEGREE) * 200; //для func1, func 3
 
          pointsForGraph2.add(new MyPoints(xx,yy));
          //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
          // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
-
      }
 
+        System.out.println("crossvalidate = " + graph.crossValidate(pointsGoodFromSample));
         graph.setVisible(true);
         graph.repaint();
     }
@@ -72,7 +72,7 @@ public class Graph extends JFrame {
             int diameter = 1;
             graphics.drawOval((int)(points.get(i).x - diameter/2) ,(int)( points.get(i).y - diameter/2), 10, 10);
      }
-     graphics.setColor(new Color(50, 155, 50));
+     graphics.setColor(Color.ORANGE);
 
      //отрисовываем график
      for(int i = 0; i < pointsForGraph2.size(); i++){
@@ -140,21 +140,21 @@ public class Graph extends JFrame {
    }
 
 
-    public double[] builtAndDecisionPolinom(ArrayList<MyPoints> points){ //составляем матрицы A,B
-        double [][] A = new double[DEGREE+1][DEGREE+1];
-        double [] B = new double[DEGREE+1];
+    public double[] builtAndDecisionPolinom(ArrayList<MyPoints> points, int polinomGegree,int count){ //составляем матрицы A,B
+        double [][] A = new double[polinomGegree+1][polinomGegree+1];
+        double [] B = new double[polinomGegree+1];
         double [] w;
 
-        for(int i = 0; i < DEGREE + 1; i++){
-            for(int j = 0; j < DEGREE + 1; j++) {
+        for(int i = 0; i < polinomGegree + 1; i++){
+            for(int j = 0; j < polinomGegree + 1; j++) {
                 A[i][j] = getSumX(points, i+j);
             }
-            for(int k = 0; k < COUNT_POINTS; k++)
+            for(int k = 0; k < count; k++)
                 B[i] = B[i] + points.get(k).getY() * Math.pow(points.get(k).getX(), i);
         }
        //решаем методом гаусса
 
-        w = decisionPolinomByGauss(A,B);
+        w = decisionPolinomByGauss(A,B,polinomGegree);
         return w;
     }
 
@@ -166,25 +166,25 @@ public class Graph extends JFrame {
         return result;
     }
 
-    public double[] decisionPolinomByGauss(double [][]A, double []B){
-        double[]w = new double[DEGREE+1];
+    public double[] decisionPolinomByGauss(double [][]A, double []B, int polinomDegree){
+        double[]w = new double[polinomDegree+1];
         //решение полинома
         double d = 0, s = 0;
 
-        for (int k = 0; k < DEGREE+1; k++) {// прямой ход
-            for (int j = k + 1; j < DEGREE+1; j++) {
+        for (int k = 0; k < polinomDegree+1; k++) {// прямой ход
+            for (int j = k + 1; j < polinomDegree+1; j++) {
                 d = A[j][k] / A[k][k];
-                for (int i = k; i < DEGREE +1; i++) {
+                for (int i = k; i < polinomDegree +1; i++) {
                     A[j][i] = A[j][i] - d * A[k][i];
                 }
                 B[j] = B[j] - d * B[k];
             }
         }
         // обратный ход
-        w[DEGREE] = B[DEGREE]/A[DEGREE][DEGREE];
-        for (int k = DEGREE-1; k >= 0; k--) {
+        w[polinomDegree] = B[polinomDegree]/A[polinomDegree][polinomDegree];
+        for (int k = polinomDegree-1; k >= 0; k--) {
             d = 0;
-            for (int j = k + 1; j < DEGREE+1; j++) {
+            for (int j = k + 1; j < polinomDegree+1; j++) {
                 s = A[k][j] * w[j];
                 d = d + s;
             }
@@ -193,18 +193,47 @@ public class Graph extends JFrame {
         return w;
     }
 
-//    public double crossValidate(double[]x, double[]y){ //полином от w - значение f
-//        double error = 0;
-//        for(int i = 0; i < COUNT_POINTS; i++){
-//
-//
-//        }
-//        return error /= COUNT_POINTS;
-//    }
+    public double crossValidate(ArrayList<MyPoints> points){ //полином от w - значение f
+        double error = 0;
+        double [] t2 = new double[COUNT_POINTS - 1];
+        double [] x2 = new double[COUNT_POINTS - 1];
 
-    public double funcW(double x, double [] w){
+
+        double [] x = new double[COUNT_POINTS];
+        double [] t = new double[COUNT_POINTS];
+        for(int i = 0; i < points.size();i++){
+            x[i] = points.get(i).x;
+            t[i] = points.get(i).y;
+        }
+
+        for(int curPoint = 0; curPoint < COUNT_POINTS; curPoint++){
+
+            for(int i = 0; i < curPoint; i++){
+                x2[i] = x[i];
+                t2[i] = t[i];
+
+            }
+            for(int i = curPoint+1; i < COUNT_POINTS; i++){
+                x2[i-1] = x[i];
+                t2[i-1] = t[i];
+            }
+
+            //Для нахождения w используются все точки, кроме одной!
+            ArrayList<MyPoints> pointses = new ArrayList<>();
+            for(int i = 0; i < t2.length; i++){
+                pointses.add(new MyPoints(x2[i],t2[i]));
+            }
+
+            double [] w = builtAndDecisionPolinom(pointses, DEGREE-1,COUNT_POINTS-1);
+            double y = funcW(x[curPoint], w,DEGREE-1);
+            error += Math.abs(t[curPoint] - y);
+        }
+        return error /= COUNT_POINTS;
+    }
+
+    public double funcW(double x, double [] w, int polinomGedree){
         double res = 0;
-        for(int i = 0; i < DEGREE+1; i++){
+        for(int i = 0; i < polinomGedree+1; i++){
             res+= w[i] * Math.pow(x, i);
         }
         return res;
