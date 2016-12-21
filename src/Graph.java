@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static java.text.ChoiceFormat.nextDouble;
@@ -8,76 +9,83 @@ import static java.text.ChoiceFormat.nextDouble;
  * Created by hp on 10.12.2016.
  */
 public class Graph extends JFrame {
-    final int COUNT_POINTS = 10;
-    final int LENGTH_X = 1500;
-    final int LENGTH_Y = 600;
-    final int DEGREE = 4;
-     Point [] points = new Point[COUNT_POINTS];
+    final static int COUNT_POINTS = 30;
+    final static int LENGTH_X = 1500;
+    final static int DEGREE = 4;
 
-    private double []w = new double[COUNT_POINTS];
+    static ArrayList<MyPoints> points = new ArrayList<MyPoints>();
+    static ArrayList<MyPoints> pointsForGraph = new ArrayList<MyPoints>();
+    static ArrayList<MyPoints> pointsForGraph2 = new ArrayList<MyPoints>();
+    static ArrayList<MyPoints> pointsGoodFromSample = new ArrayList<MyPoints>();
 
     public static void main(String[] args) {
         Graph graph = new Graph();
         graph.setSize(new Dimension(2000, 1200));
+
+        for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
+            double xx = 200 + i * 200; //для func1, func 3
+            double yy = 300 - graph.func1(i) * 200; //для func1, func 3
+            pointsForGraph.add(new MyPoints(xx, yy));
+
+
+        //int xx = 500 + i * 200 * 0.03; // для func 2
+            // int yy = 300 - func2(i) * 200 * 0.03; // для func 2
+
+        }
+
+        for (int i = 0; i < COUNT_POINTS; i++) {
+            //MyPoints point = graph.generateNormalSample();
+            MyPoints point = graph.generateSamle();
+            points.add(point);
+        }
+
+        double[] w;
+       w = graph.builtAndDecisionPolinom(pointsGoodFromSample);
+        for (int i = 0; i < w.length; i++)
+            System.out.println("w" + i + "= " + w[i]);
+
+     for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
+         double xx = 200 + i * 200; //для func1, func 3
+         double yy = 300 - graph.funcW(i,w) * 200; //для func1, func 3
+
+         pointsForGraph2.add(new MyPoints(xx,yy));
+         //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
+         // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
+
+     }
+
         graph.setVisible(true);
         graph.repaint();
     }
 
 
  public void paint(Graphics graphics){
-int height = getHeight(),
-        width = getWidth();
+
        //отрисовка графика
        graphics.drawLine(200, 0, 200, 600);
        graphics.drawLine(0, 300, LENGTH_X, 300);
-       int [] x = new int[LENGTH_X];
-       int[] y = new int[LENGTH_X];
-
-     int j = 0;
-     for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
-        int xx = 200 + (int)(i * 200); //для func1, func 3
-        int yy = 300 - (int)(func1(i) * 200); //для func1, func 3
-        //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
-       // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
-         j++;
-         int diameter = 1;
-         graphics.drawOval(xx - diameter / 2, yy - diameter / 2, diameter, diameter);
+     for(int i = 0; i < pointsForGraph.size(); i++){
+         graphics.drawOval((int)(pointsForGraph.get(i).x - 1/2),(int)( pointsForGraph.get(i).y - 1/2), 1,1);
      }
-
-       //отрисовываем выборку
-
-
-     Point point = new Point();
-        for (int i = 0; i < COUNT_POINTS; i++) {
-            //point = generateNormalSample();
-            point = generateSamle();
+      //отрисовываем выборку
+     for (int i = 0; i < COUNT_POINTS; i++) {
             int diameter = 1;
-            graphics.drawOval(point.x - diameter/2 , point.y - diameter/2, 10, 10);
-
-        }
-
-
-
-       for(int i = 0; i < points.length; i++){
-           graphics.drawOval(points[i].x -1 /2, points[i].y-1/2, 5, 5);
-       }
-       graphics.setColor(new Color(255, 0, 0));
-/////////////
-       w = builtAndDecisionPolinom(x,y);//?считаем W
-       //рисуем x и W
-     for(int i = 0; i < getWidth(); i++) {
-         x[i] = i;
-         y[i] = (int)(-funcW(i*2*Math.PI/getWidth(), w)*150)+ LENGTH_Y;//1
+            graphics.drawOval((int)(points.get(i).x - diameter/2) ,(int)( points.get(i).y - diameter/2), 10, 10);
      }
-     graphics.drawPolyline(x, y, getWidth());
+     graphics.setColor(new Color(50, 155, 50));
+
+     //отрисовываем график
+     for(int i = 0; i < pointsForGraph2.size(); i++){
+         graphics.drawOval((int)(pointsForGraph2.get(i).x - 1/2),(int) (pointsForGraph2.get(i).y - 1/2), 2,2);
+     }
 
        //выводим кроссвалидацию
    }
 
-   public Point graphics(double x, double t){
-       Point point = new Point();
-       int xx = 200 + (int)(x *200);
-       int yy = 300 - (int)(t*200);
+   public MyPoints graphics(double x, double t){
+       MyPoints point = new MyPoints();
+       double xx = 200 + x *200;
+       double yy = 300 - t*200;
        //int xx = 500 + (int)(i * 200 * 0.03); // для func 2
        // int yy = 300 - (int)(func2(i) * 200 * 0.03); // для func 2
        point.x = xx;
@@ -98,7 +106,7 @@ int height = getHeight(),
        return Math.sin(x);
    }
 
-   public Point generateSamle(){
+   public MyPoints generateSamle(){
       double x;
       double t;
        double e = 0.0;
@@ -115,51 +123,55 @@ int height = getHeight(),
        }else
            s = -1;
        t = func1(x) + s*e ;
+       pointsGoodFromSample.add(new MyPoints(x,t));
        return graphics(x,t);
 
    }
 
-   public Point generateNormalSample(){
+   public MyPoints generateNormalSample(){
        Random random = new Random();
        double x;
        double t;
-       Point point = new Point();
        int rd = random.nextInt(LENGTH_X);
        x = (2 * Math.PI *rd) / LENGTH_X;
        t = func1(x) + random.nextGaussian()*0.2;
+       pointsGoodFromSample.add(new MyPoints(x,t));
        return graphics(x,t);
    }
 
 
-    public double[] builtAndDecisionPolinom(int [] x, int [] t){
-        double [][] A = new double[DEGREE][DEGREE];
-        double [] B = new double[DEGREE];
+    public double[] builtAndDecisionPolinom(ArrayList<MyPoints> points){ //составляем матрицы A,B
+        double [][] A = new double[DEGREE+1][DEGREE+1];
+        double [] B = new double[DEGREE+1];
+        double [] w;
 
-        for(int i = 0; i < DEGREE; i++){
-            for(int j = 0; j < DEGREE; j++) {
-                A[i][j] = getSumX(x, i+j);
+        for(int i = 0; i < DEGREE + 1; i++){
+            for(int j = 0; j < DEGREE + 1; j++) {
+                A[i][j] = getSumX(points, i+j);
             }
             for(int k = 0; k < COUNT_POINTS; k++)
-                B[i] = B[i] + t[k] * Math.pow(x[k], i);
+                B[i] = B[i] + points.get(k).getY() * Math.pow(points.get(k).getX(), i);
         }
        //решаем методом гаусса
-        return decisionPolinomByGauss(A,B);
+
+        w = decisionPolinomByGauss(A,B);
+        return w;
     }
 
-    private double getSumX(int[]x, int power){
+    private double getSumX(ArrayList<MyPoints> point, int power){
         double result = 0;
-        for(int i = 0; i < x.length; i++){
-            result+= Math.pow(x[i], power);
+        for(int i = 0; i < point.size(); i++){
+            result+= Math.pow(point.get(i).getX(), power);
         }
         return result;
     }
 
     public double[] decisionPolinomByGauss(double [][]A, double []B){
-        double[]w = new double[DEGREE];
+        double[]w = new double[DEGREE+1];
         //решение полинома
         double d = 0, s = 0;
 
-        for (int k = 0; k < DEGREE; k++) {// прямой ход
+        for (int k = 0; k < DEGREE+1; k++) {// прямой ход
             for (int j = k + 1; j < DEGREE+1; j++) {
                 d = A[j][k] / A[k][k];
                 for (int i = k; i < DEGREE +1; i++) {
@@ -181,18 +193,18 @@ int height = getHeight(),
         return w;
     }
 
-    public double crossValidate(double[]x, double[]y){ //полином от w - значение f
-        double error = 0;
-        for(int i = 0; i < COUNT_POINTS; i++){
-
-
-        }
-        return error /= COUNT_POINTS;
-    }
+//    public double crossValidate(double[]x, double[]y){ //полином от w - значение f
+//        double error = 0;
+//        for(int i = 0; i < COUNT_POINTS; i++){
+//
+//
+//        }
+//        return error /= COUNT_POINTS;
+//    }
 
     public double funcW(double x, double [] w){
         double res = 0;
-        for(int i = 0; i < DEGREE; i++){
+        for(int i = 0; i < DEGREE+1; i++){
             res+= w[i] * Math.pow(x, i);
         }
         return res;
