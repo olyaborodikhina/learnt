@@ -23,11 +23,11 @@ public class Graph extends JFrame {
         graph.setBackground(Color.WHITE);
 
         for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
-            //double xx = 200 + i * 200; //для func1, func 3
-           // double yy = 300 - graph.func1(i) * 200; //для func1, func 3
+            double xx = 200 + i * 200; //для func1, func 3
+           double yy = 300 - graph.func1(i) * 200; //для func1, func 3
 
-            double xx = 500 + i * 200 * 0.03; // для func 2
-            double yy = 300 - graph.func2(i) * 200 * 0.03; // для func 2
+            //double xx = 500 + i * 200 * 0.03; // для func 2
+            //double yy = 300 - graph.func2(i) * 200 * 0.03; // для func 2
             pointsForGraph.add(new MyPoints(xx, yy));
         }
 
@@ -43,10 +43,10 @@ public class Graph extends JFrame {
             System.out.println("w" + i + "= " + w[i]);
 
      for(double i = -Math.PI; i < 2 * Math.PI; i += 0.002){
-        // double xx = 200 + i * 200; //для func1, func 3
-         //double yy = 300 - graph.funcW(i,w,DEGREE) * 200; //для func1, func 3
-         double xx = 500 + (int)(i * 200 * 0.03); // для func 2
-         double yy = 300 - (int)graph.funcW(i,w,DEGREE) * 200 * 0.03; // для func 2
+        double xx = 200 + i * 200; //для func1, func 3
+        double yy = 300 - graph.funcW(i,w,DEGREE) * 200; //для func1, func 3
+         //double xx = 500 + (int)(i * 200 * 0.03); // для func 2
+         //double yy = 300 - (int)graph.funcW(i,w,DEGREE) * 200 * 0.03; // для func 2
          pointsForGraph2.add(new MyPoints(xx,yy));
      }
 
@@ -80,10 +80,10 @@ public class Graph extends JFrame {
 
    public MyPoints graphics(double x, double t){
        MyPoints point = new MyPoints();
-       //double xx = 200 + x *200;
-       //double yy = 300 - t*200;
-       double xx = 500 + (int)(x * 200 * 0.03); // для func 2
-       double yy = 300 - (int)(t * 200 * 0.03); // для func 2
+       double xx = 200 + x *200;
+       double yy = 300 - t*200;
+       //double xx = 500 + (int)(x * 200 * 0.03); // для func 2
+       //double yy = 300 - (int)(t * 200 * 0.03); // для func 2
        point.x = xx;
        point.y = yy;
        return point;
@@ -117,7 +117,7 @@ public class Graph extends JFrame {
            s = 1.;
        }else
            s = -1;
-       t = func2(x) + s*e ;
+       t = func1(x) + s*e ;
        pointsGoodFromSample.add(new MyPoints(x,t));
        return graphics(x,t);
 
@@ -129,7 +129,7 @@ public class Graph extends JFrame {
        double t;
        int rd = random.nextInt(LENGTH_X);
        x = (2 * Math.PI *rd) / LENGTH_X;
-       t = func2(x) + random.nextGaussian()*0.2;
+       t = func1(x) + random.nextGaussian()*0.2;
        pointsGoodFromSample.add(new MyPoints(x,t));
        return graphics(x,t);
    }
